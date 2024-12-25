@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const path = require('path');
+const { text } = require('stream/consumers');
 
 const PORT = 3000;
 
@@ -23,12 +24,13 @@ app.get('/', (req, res) => {
 
 // Socket.IO
 io.on('connection', (socket) => {
-    console.log('Utilisateur connecté');
-
+    console.log(`Utilisateur connecté ${socket.id}`);
     socket.on('message', (msg) => {
-        const serveMesaage=`server a reçu:${msg}`
-        console.log(`Message reçu : ${msg}`);
-        io.emit('message', serveMesaage);
+        const messageId= { text: msg,id: socket.id};
+
+     //   const serveMesage=`server a reçu:${msg} `;
+ console.log(`Message reçu : ${msg} de la part de ${socket.id}`);
+        io.emit('message',messageId);
     });
 
     socket.on('disconnect', () => {
