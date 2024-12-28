@@ -25,12 +25,24 @@ app.get('/', (req, res) => {
 // Socket.IO
 io.on('connection', (socket) => {
     console.log(`Utilisateur connecté ${socket.id}`);
-    socket.on('message', (msg) => {
-        const messageId= { text: msg,id: socket.id};
+     
+    //gestion des pseudo côté serveur
+    let userPseudo='';
 
-     //   const serveMesage=`server a reçu:${msg} `;
- console.log(`Message reçu : ${msg} de la part de ${socket.id}`);
+    socket.on('setPseudo', (pseudo)=>{
+        userPseudo=pseudo;
+
+    });
+
+
+
+    socket.on('message', (msg) => {
+        const messageId= { text: msg,id: socket.id , pseudo: userPseudo  };
+
         io.emit('message',messageId);
+
+
+ console.log(`Message reçu : ${msg} de la part de ${socket.id}`);
     });
 
     socket.on('disconnect', () => {
