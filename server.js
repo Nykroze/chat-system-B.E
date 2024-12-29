@@ -23,28 +23,37 @@ app.get('/', (req, res) => {
 });
 
 // Socket.IO
-io.on('connection', (socket) => {
-    console.log(`Utilisateur connecté ${socket.id}`);
-     
-    //gestion des pseudo côté serveur
-    let userPseudo='';
 
+
+
+// message de bienvenue avec pseudo choisi => voir script frontEnd
+io.on('connection', (socket) => {
+    let userPseudo='';
+    
     socket.on('setPseudo', (pseudo)=>{
         userPseudo=pseudo;
+        io.emit('newUser',userPseudo)
+        
+    });
+    //message de bienvenue
+    console.log(`Utilisateur connecté ${socket.id}`);
 
+
+
+    socket.on('userName', (userName) => {
+        console.log(`Nom de l'utilisateur : ${userName}`);
     });
 
-
-
+    //gestion des messages
     socket.on('message', (msg) => {
-        const messageId= { text: msg,id: socket.id , pseudo: userPseudo  };
+        const messageId= { text: msg.text,id: socket.id , pseudo: msg.pseudo  };
 
         io.emit('message',messageId);
 
 
  console.log(`Message reçu : ${msg} de la part de ${socket.id}`);
     });
-
+// deconnexion de serv
     socket.on('disconnect', () => {
         console.log('Utilisateur déconnecté');
     });
