@@ -22,17 +22,19 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../front/public/index.html')); 
 });
 
+// liste des utilisateurs connéctés 
+
+
 // Socket.IO
-
-
-
 // message de bienvenue avec pseudo choisi => voir script frontEnd
 io.on('connection', (socket) => {
+    let users={};
+
     let userPseudo='';
     
     socket.on('setPseudo', (pseudo)=>{
-        userPseudo=pseudo;
-        io.emit('newUser',userPseudo)
+        users[socket.id]=pseudo;
+        socket.broadcast.emit('newUser',pseudo)
         
     });
     //message de bienvenue
@@ -46,7 +48,7 @@ io.on('connection', (socket) => {
 
     //gestion des messages
     socket.on('message', (msg) => {
-        const messageId= { text: msg.text,id: socket.id , pseudo: msg.pseudo  };
+        const messageId= { text: msg.text,id: socket.id , pseudo: users[socket.id] };
 
         io.emit('message',messageId);
 
@@ -55,7 +57,9 @@ io.on('connection', (socket) => {
     });
 // deconnexion de serv
     socket.on('disconnect', () => {
-        console.log('Utilisateur déconnecté');
+        console.log(`utilisateur ${users[socket.id]} déconnecté`);
+        socket.broadcast.emit('userLeft', users[socket.id]);
+        delete users[socket.id];
     });
 });
 
