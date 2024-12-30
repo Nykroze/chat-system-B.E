@@ -1,12 +1,10 @@
+//appel
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const path = require('path');
-const { text } = require('stream/consumers');
-
 const PORT = 3000;
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -24,24 +22,20 @@ app.get('/', (req, res) => {
 
 // liste des utilisateurs connéctés 
 
+ // socket.emit('usersList', Object.values(users));  // envoie de la liste a revoir ou a prévoir
 
 // Socket.IO
 // message de bienvenue avec pseudo choisi => voir script frontEnd
 io.on('connection', (socket) => {
     let users={};
 
-    let userPseudo='';
-    
     socket.on('setPseudo', (pseudo)=>{
         users[socket.id]=pseudo;
         socket.broadcast.emit('newUser',pseudo)
         
     });
-    //message de bienvenue
+    //message de bienvenue log
     console.log(`Utilisateur connecté ${socket.id}`);
-
-
-
     socket.on('userName', (userName) => {
         console.log(`Nom de l'utilisateur : ${userName}`);
     });
@@ -53,7 +47,7 @@ io.on('connection', (socket) => {
         io.emit('message',messageId);
 
 
- console.log(`Message reçu : ${msg} de la part de ${socket.id}`);
+ console.log(`Message reçu de la part de " ${users[socket.id]} "`);
     });
 // deconnexion de serv
     socket.on('disconnect', () => {
